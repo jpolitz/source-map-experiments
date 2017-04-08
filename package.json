@@ -1,0 +1,14 @@
+{
+  "name": "simple-sourcemap",
+  "version": "1.0.0",
+  "description": "A simple demo of sourcemaps",
+  "main": "compile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Joe Gibbs Politz",
+  "license": "ISC",
+  "dependencies": {
+    "source-map": "^0.5.6"
+  }
+}
