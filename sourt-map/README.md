@@ -5,7 +5,7 @@ program that logs them in sorted order, along with an accurate source map.  The
 end result is that you can use the debugger to jump through the input numbers
 in sorted order:
 
-![Orderly debugging](https://raw.githubusercontent.com/jpolitz/source-map-experiments/master/debug.gif)
+![Orderly debugging](https://raw.githubusercontent.com/jpolitz/source-map-experiments/master/sourt-map/debug.gif)
 
 To build the example, run
 
