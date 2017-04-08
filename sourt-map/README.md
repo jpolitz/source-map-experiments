@@ -1,9 +1,9 @@
 # Sourt-Map
 
 This compiler takes in a newline-separated list of numbers and produces a
-program that logs them in sorted order, along with an accurate source map.  The
-end result is that you can use the debugger to jump through the input numbers
-in sorted order:
+program that logs them in sorted order, along with an accurate source map.  It
+uses https://github.com/mozilla/source-map to do so.  The end result is that
+you can use the debugger to jump through the input numbers in sorted order:
 
 ![Orderly debugging](https://raw.githubusercontent.com/jpolitz/source-map-experiments/master/sourt-map/debug.gif)
 
