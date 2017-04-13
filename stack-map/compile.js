@@ -39,8 +39,9 @@ function intersperse(lst, elt) {
   return newList;
 }
 
-function strpos(pos) {
-  return [pos.startRow, pos.startCol, pos.endRow, pos.endCol];
+function strpos(ast) {
+  const pos = ast.pos;
+  return [ast.name, pos.startRow, pos.startCol, pos.endRow, pos.endCol];
 }
 
 function compile(ast, name) {
@@ -54,8 +55,8 @@ function compile(ast, name) {
          "function raise(err) { console.error(err); throw new Error(err); }\n",
          "function start() {\n"].concat(
           ast.kids.map(function(a) { return compile(a, name); })
-         ).concat(["\n}"]),
-        strpos(ast.pos)
+         ).concat(["\n}\nmodule.exports = { start: start }"]),
+        strpos(ast)
       );
     case 'prelude':
       return "";
@@ -77,27 +78,44 @@ function compile(ast, name) {
          ";",
          "\n}\n"
         ],
-        strpos(ast.pos));
+        strpos(ast));
     case 'id-expr':
+      return ast.kids[0].value;
       return new SN(
         ast.pos.startRow,
         ast.pos.startCol + 1,
         name,
         [ast.kids[0].value],
-        strpos(ast.pos));
+        strpos(ast));
+    case 'obj-expr':
+      return ["{", compile(ast.kids[1], name), "}"];
+    case 'let-expr':
+      const binding = ast.kids[0].kids[0].kids[0];
+      console.log(binding);
+      return ["const ", binding.kids[0].value, " = ", compile(ast.kids[2], name), ";\n"];
+    case 'obj-field':
+      return [ast.kids[0].kids[0].value, ":", compile(ast.kids[2], name)];
+    case 'dot-expr':
+      return new SN(
+        ast.pos.startRow,
+        ast.pos.startCol + 1,
+        name,
+        [compile(ast.kids[0], name), "[\"", ast.kids[2].value, "\"]"],
+        strpos(ast));
     case 'app-expr':
       return new SN(
         ast.pos.startRow,
         ast.pos.startCol + 1,
         name,
-        [compile(ast.kids[0], name), "(", compile(ast.kids[1]), ")"],
-        strpos(ast.pos));
+        [compile(ast.kids[0], name), "(", compile(ast.kids[1], name), ")"],
+        strpos(ast));
     case 'app-args':
       return compile(ast.kids[1]);
     case 'opt-comma-binops':
       return intersperse(ast.kids.map(function(a) { return compile(a, name); }), ",");
     case 'string-expr':
       return ast.kids[0].value;
+    case 'obj-fields':
     case 'prim-expr':
     case 'binop-expr':
     case 'check-test':
@@ -112,63 +130,6 @@ function compile(ast, name) {
 
 }
 
-console.log(parse(program));
-console.log(compile(parse(program), toRead));
-
-/*
-function parse(code) {
-  const lines = code.split("\n");
-  const ast = [];
-  var totalChars = 0;
-  lines.forEach(function(l, i) {
-    console.log(l.length);
-    ast.push({
-      loc: {
-        startLine: i + 1,
-        startCol: 0,
-        startCh: totalChars,
-        endLine: i + 1,
-        endCol: l.length,
-        endCh: totalChars + l.length
-      },
-      content: l
-    });
-    totalChars += l.length + 1;
-  });
-  return ast;
-}
-
-function compile(ast) {
-  const sorted = Array.prototype.slice.apply(ast, []);
-  sorted.sort(function(a, b) { return Number(a.content) - Number(b.content); });
-  const compiled = sorted.map(function(l) {
-    return {
-      loc: l.loc,
-      code: "console.log(" + l.content + ");",
-      original: l
-    }
-  });
-  return compiled;
-}
-
-
-function makeMap(compiled, name) {
-  return new SN(
-    compiled[0].loc.startLine,
-    compiled[0].loc.startCol,
-    name,
-    ["//# sourceMappingURL=./" + path.basename(toRead) + ".map", "\n",
-     "function go() {\n"].concat(
-      compiled.map(function(c) {
-        console.log(c.code);
-        return new SN(c.loc.startLine, c.loc.startCol, name, [c.code, "\n"]);
-      })).concat([
-     "}"
-     ])
-  );
-}
-
-*/
 const m = compile(parse(program), path.basename(toRead));
 
 const mapped = m.toStringWithSourceMap({
@@ -176,6 +137,6 @@ const mapped = m.toStringWithSourceMap({
 });
 
 fs.writeFileSync(toRead + ".js", mapped.code);
-fs.writeFileSync(toRead + ".map", "const theMap = " + mapped.map.toString() + ";");
+fs.writeFileSync(toRead + ".map", "module.exports = { theMap: " + mapped.map.toString() + "};");
 
 });
