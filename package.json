@@ -9,6 +9,7 @@
   "author": "Joe Gibbs Politz",
   "license": "ISC",
   "dependencies": {
-    "source-map": "^0.5.6"
+    "source-map": "^0.5.6",
+    "requirejs": "~2.1.15"
   }
 }
