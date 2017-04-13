@@ -1,16 +1,16 @@
-fun hh():
-  { ff: ff }
+fun h():
+  { f: f }
 end
 
-fun ff():
-  gg()
+fun f():
+  g()
 end
 
-o = { hh: hh }
+o = { h: h }
 
-fun gg():
+fun g():
   raise("yikes")
 end
 
-o.hh().ff()
+o.h().f()
 

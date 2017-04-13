@@ -1,11 +1,15 @@
 // theMap is defined in the .map file
-const {start} = require("./test.arr.js");
-const {theMap} = require("./test.arr.map");
+
+const testName = process.argv[2];
+
+const path = require("path");
 const fs = require("fs");
 const sourceMap = require("source-map");
 const ErrorStackParser = require("error-stack-parser");
+const {start} = require("./" + testName + ".js");
+const {theMap} = require("./" + testName + ".map");
 
-const originalCode = String(fs.readFileSync("examples/test.arr"));
+const originalCode = String(fs.readFileSync(testName));
 
 const consumer = new sourceMap.SourceMapConsumer(theMap);
 consumer.computeColumnSpans();
@@ -28,7 +32,7 @@ catch(e) {
   console.log("All generated positions on stack: ");
   parsedStack.forEach(function(elt) {
 //    console.log("\n\nThe reported stack information from the exception: ", elt);
-    const originalPos = consumer.originalPositionFor({ source: "test.arr", line: elt.lineNumber, column: elt.columnNumber }, sourceMap.SourceMapConsumer.LEAST_UPPER_BOUND);
+    const originalPos = consumer.originalPositionFor({ source: path.basename(testName), line: elt.lineNumber, column: elt.columnNumber }, sourceMap.SourceMapConsumer.LEAST_UPPER_BOUND);
     const fragment = findInOriginal(originalPos);
 
 //    console.log("Mapped through original position ranges: ")
