@@ -11,7 +11,7 @@ $ node gather-trace.js examples/test.arr
 There are some `console.log` statements you can comment in and out in
 `gather-trace` to see what's going on.
 
-An example:
+An example input program:
 
 ```
 fun h():
@@ -30,6 +30,29 @@ end
 
 o.h().f()
 ```
+
+Generated code:
+
+```
+//# sourceMappingURL=./test.arr.map
+function raise(err) { console.error(err); throw new Error(err); }
+function start() {
+function h() {
+return {f:f};
+}
+function f() {
+return g();
+}
+const o = {h:h};
+function g() {
+return raise("yikes");
+}
+o["h"]()["f"]()
+}
+module.exports = { start: start }
+```
+
+Output of running the program:
 
 ```
 All generated positions on stack:
@@ -75,5 +98,4 @@ of the full application.
         [ast.kids[0].value],
         strpos(ast));
 ```
-
 
