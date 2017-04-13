@@ -39,50 +39,59 @@ function intersperse(lst, elt) {
   return newList;
 }
 
+function strpos(pos) {
+  return [pos.startRow, pos.startCol, pos.endRow, pos.endCol];
+}
+
 function compile(ast, name) {
   switch(ast.name) {
     case 'program':
       return new SN(
         ast.pos.startRow,
-        ast.pos.startCol,
+        ast.pos.startCol + 1,
         name,
         ["//# sourceMappingURL=./" + path.basename(name) + ".map", "\n",
          "function raise(err) { console.error(err); throw new Error(err); }\n",
          "function start() {\n"].concat(
           ast.kids.map(function(a) { return compile(a, name); })
-         ).concat(["\n}"])
+         ).concat(["\n}"]),
+        strpos(ast.pos)
       );
     case 'prelude':
       return "";
     case 'fun-expr':
       return new SN(
         ast.pos.startRow,
-        ast.pos.startCol,
+        ast.pos.startCol + 1,
         name,
         ["function ",
          new SN(
           ast.kids[1].pos.startRow,
-          ast.kids[1].pos.startCol,
+          ast.kids[1].pos.startCol + 1,
           name,
-          [ast.kids[1].value]),
+          [ast.kids[1].value],
+          strpos(ast.kids[1])),
          "() {\n",
          "return ",
          compile(ast.kids[5], name),
          ";",
          "\n}\n"
-        ]);
+        ],
+        strpos(ast.pos));
     case 'id-expr':
       return new SN(
         ast.pos.startRow,
-        ast.pos.startCol,
+        ast.pos.startCol + 1,
         name,
-        [ast.kids[0].value]);
+        [ast.kids[0].value],
+        strpos(ast.pos));
     case 'app-expr':
       return new SN(
         ast.pos.startRow,
-        ast.pos.startCol,
+        ast.pos.startCol + 1,
         name,
-        [compile(ast.kids[0], name), "(", compile(ast.kids[1]), ")"]);
+        [compile(ast.kids[0], name), "(", compile(ast.kids[1]), ")"],
+        strpos(ast.pos));
     case 'app-args':
       return compile(ast.kids[1]);
     case 'opt-comma-binops':

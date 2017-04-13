@@ -1,5 +1,6 @@
 // theMap is defined in the .map file
 const consumer = new sourceMap.SourceMapConsumer(theMap);
+consumer.computeColumnSpans();
 
 try {
   start(); // start is the generated entry point
